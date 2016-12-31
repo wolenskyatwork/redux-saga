@@ -14,6 +14,8 @@ const SELECT         = 'SELECT'
 const ACTION_CHANNEL = 'ACTION_CHANNEL'
 const CANCELLED      = 'CANCELLED'
 const FLUSH          = 'FLUSH'
+const GET_CONTEXT    = 'GET_CONTEXT'
+const SET_CONTEXT    = 'SET_CONTEXT'
 
 const deprecationWarning = (deprecated, preferred) =>
   `${ deprecated } has been deprecated in favor of ${ preferred }, please update your code`
@@ -153,6 +155,16 @@ export function flush(channel) {
   return effect(FLUSH, channel)
 }
 
+export function getContext(prop) {
+  check(prop, is.string, `getContext(prop): argument ${ prop } is not a string`)
+  return effect(GET_CONTEXT, prop) // TODO: maybe accept functions also?
+}
+
+export function setContext(props) {
+  // TODO: check if props is object/plain object?
+  return effect(SET_CONTEXT, props)
+}
+
 export function takeEvery(patternOrChannel, worker, ...args) {
   return fork(takeEveryHelper, patternOrChannel, worker, ...args)
 }
@@ -179,5 +191,7 @@ export const asEffect = {
   select       : createAsEffectType(SELECT),
   actionChannel: createAsEffectType(ACTION_CHANNEL),
   cancelled    : createAsEffectType(CANCELLED),
-  flush        : createAsEffectType(FLUSH)
+  flush        : createAsEffectType(FLUSH),
+  getContext   : createAsEffectType(GET_CONTEXT),
+  setContext   : createAsEffectType(SET_CONTEXT)
 }

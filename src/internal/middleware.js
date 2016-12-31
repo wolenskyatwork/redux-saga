@@ -3,8 +3,9 @@ import proc from './proc'
 import {emitter} from './channel'
 
 
-export default function sagaMiddlewareFactory(options = {}) {
+export default function sagaMiddlewareFactory(_options = {}) {
   let runSagaDynamically
+  const { context = {}, ...options } = _options
   const {sagaMonitor} = options
 
   // monitors are expected to have a certain interface, let's fill-in any missing ones
@@ -60,6 +61,7 @@ export default function sagaMiddlewareFactory(options = {}) {
         sagaEmitter.subscribe,
         sagaDispatch,
         getState,
+        context,
         options,
         sagaId,
         saga.name
@@ -89,6 +91,15 @@ export default function sagaMiddlewareFactory(options = {}) {
       sagaMonitor.effectResolved(effectId, task)
     }
     return task
+  }
+
+  sagaMiddleware.setContext = (props) => {
+    // TODO: or maybe `setContext` should be available on task and this one should act only as proxy method?
+    // would that be useful?
+    // const task = yield takeEvery(...)
+    // const task.setContext({...}) or maybe even - yield setContext(task, {...})?
+    Object.assign(context, props)
+    return sagaMiddleware
   }
 
   return sagaMiddleware

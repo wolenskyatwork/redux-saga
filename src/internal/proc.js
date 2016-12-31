@@ -138,6 +138,7 @@ export default function proc(
   subscribe = () => noop,
   dispatch = noop,
   getState = noop,
+  parentContext = {},
   options = {},
   parentEffectId = 0,
   name = 'anonymous',
@@ -148,6 +149,7 @@ export default function proc(
   const {sagaMonitor, logger, onError} = options
   const log = logger || _log
   const stdChannel = _stdChannel(subscribe)
+  const taskContext = Object.create(parentContext)
   /**
     Tracks the current effect cancellation
     Each time the generator progresses. calling runEffect will set a new value
@@ -386,6 +388,8 @@ export default function proc(
       : (is.notUndef(data = asEffect.actionChannel(effect))) ? runChannelEffect(data, currCb)
       : (is.notUndef(data = asEffect.flush(effect)))         ? runFlushEffect(data, currCb)
       : (is.notUndef(data = asEffect.cancelled(effect)))     ? runCancelledEffect(data, currCb)
+      : (is.notUndef(data = asEffect.getContext(effect)))    ? runGetContextEffect(data, currCb)
+      : (is.notUndef(data = asEffect.setContext(effect)))    ? runSetContextEffect(data, currCb)
       : /* anything else returned as is        */              currCb(effect)
     )
   }
@@ -402,7 +406,7 @@ export default function proc(
   }
 
   function resolveIterator(iterator, effectId, name, cb) {
-    proc(iterator, subscribe, dispatch, getState, options, effectId, name, cb)
+    proc(iterator, subscribe, dispatch, getState, taskContext, options, effectId, name, cb)
   }
 
   function runTakeEffect({channel, pattern, maybe}, cb) {
@@ -481,7 +485,17 @@ export default function proc(
 
     try {
       suspend()
-      const task = proc(taskIterator, subscribe, dispatch, getState, options, effectId, fn.name, (detached ? null : noop))
+      const task = proc(
+        taskIterator,
+        subscribe,
+        dispatch,
+        getState,
+        (detached ? null : taskContext), // TODO: topContext should be passed in case of spawn?
+        options,
+        effectId,
+        fn.name,
+        (detached ? null : noop)
+      )
 
       if(detached) {
         cb(task)
@@ -624,6 +638,18 @@ export default function proc(
 
   function runFlushEffect(channel, cb) {
     channel.flush(cb)
+  }
+
+  function runGetContextEffect(prop, cb) {
+    // TODO: if object returned -> return shallow copy?
+    // should yield getContext() be available to access context?
+    // if yes then shallow copying it is a must to avoid unexpected mutations
+    cb(taskContext[prop])
+  }
+
+  function runSetContextEffect(props, cb) {
+    Object.assign(taskContext, props)
+    cb()
   }
 
   function newTask(id, name, iterator, cont) {

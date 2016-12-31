@@ -7,6 +7,7 @@ export function runSaga(
     subscribe,
     dispatch,
     getState,
+    context,
     sagaMonitor,
     logger
   }
@@ -24,6 +25,7 @@ export function runSaga(
     subscribe,
     dispatch,
     getState,
+    context,
     {sagaMonitor, logger},
     effectId,
     iterator.name
@@ -31,6 +33,11 @@ export function runSaga(
 
   if(sagaMonitor) {
     sagaMonitor.effectResolved(effectId, task)
+  }
+
+  task.setContext = (props) => {
+    Object.assign(context, props)
+    return task
   }
 
   return task
