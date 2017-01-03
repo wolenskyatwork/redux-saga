@@ -104,16 +104,19 @@ export function spawn(fn, ...args) {
 
 const isForkedTask = task => task[TASK]
 
-export function join(...task) {
-  if (task.length > 1) {
-    return task.map(join)
+export function join(...tasks) {
+  if (tasks.length > 1) {
+    return tasks.map(join)
   }
-  check(task, is.notUndef, 'join(task): argument task is undefined')
-  if(!isForkedTask(task)) {
-    throw new Error(`join(task): argument ${task} is not a valid Task object \n(HINT: if you are getting this errors in tests, consider using createMockTask from redux-saga/utils)`)
+  if (is.iterable(tasks[0])) {
+    return [...tasks[0]].map(join)
+  }
+  check(tasks, is.notUndef, 'join(task): argument task is undefined')
+  if(!isForkedTask(tasks)) {
+    throw new Error(`join(task): argument ${tasks} is not a valid Task object \n(HINT: if you are getting this errors in tests, consider using createMockTask from redux-saga/utils)`)
   }
 
-  return effect(JOIN, task)
+  return effect(JOIN, tasks)
 }
 
 export function cancel(task) {
