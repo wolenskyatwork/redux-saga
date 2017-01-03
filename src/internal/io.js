@@ -104,8 +104,8 @@ export function spawn(fn, ...args) {
 
 const isForkedTask = task => task[TASK]
 
-export function join(task) {
-  if (is.array(task)) {
+export function join(...task) {
+  if (task.length > 1) {
     return task.map(join)
   }
   check(task, is.notUndef, 'join(task): argument task is undefined')
