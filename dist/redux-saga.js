@@ -2225,17 +2225,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	      dispatch = _ref.dispatch,
 	      getState = _ref.getState,
 	      sagaMonitor = _ref.sagaMonitor,
-	      logger = _ref.logger;
+	      logger = _ref.logger,
+	      onError = _ref.onError;
 
 
 	  (0, _utils.check)(iterator, _utils.is.iterator, "runSaga must be called on an iterator");
 
 	  var effectId = (0, _utils.uid)();
 	  if (sagaMonitor) {
-	    dispatch = (0, _utils.wrapSagaDispatch)(dispatch);
 	    sagaMonitor.effectTriggered({ effectId: effectId, root: true, parentEffectId: 0, effect: { root: true, saga: iterator, args: [] } });
 	  }
-	  var task = (0, _proc2.default)(iterator, subscribe, dispatch, getState, { sagaMonitor: sagaMonitor, logger: logger }, effectId, iterator.name);
+	  var task = (0, _proc2.default)(iterator, subscribe, (0, _utils.wrapSagaDispatch)(dispatch), getState, { sagaMonitor: sagaMonitor, logger: logger, onError: onError }, effectId, iterator.name);
 
 	  if (sagaMonitor) {
 	    sagaMonitor.effectResolved(effectId, task);
