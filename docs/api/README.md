@@ -158,7 +158,7 @@ Spawns a `saga` on each action dispatched to the Store that matches `pattern`.
 In the following example, we create a simple task `fetchUser`. We use `takeEvery` to start a new `fetchUser` task on each dispatched `USER_REQUESTED` action:
 
 ```javascript
-import { takeEvery } from `redux-saga/effects`
+import { takeEvery } from `redux-saga`
 
 function* fetchUser(action) {
   ...

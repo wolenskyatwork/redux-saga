@@ -26,7 +26,7 @@ export function* fetchData(action) {
 To launch the above task on each `FETCH_REQUESTED` action:
 
 ```javascript
-import { takeEvery } from 'redux-saga/effects'
+import { takeEvery } from 'redux-saga'
 
 function* watchFetchData() {
   yield takeEvery('FETCH_REQUESTED', fetchData)

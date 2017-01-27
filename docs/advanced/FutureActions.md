@@ -11,7 +11,8 @@ Let's take a simple example of a Saga that watches all actions dispatched to the
 Using `takeEvery('*')` (with the wildcard `*` pattern) we can catch all dispatched actions regardless of their types.
 
 ```javascript
-import { select, takeEvery } from 'redux-saga/effects'
+import { takeEvery } from 'redux-saga'
+import { select } from 'redux-saga/effects'
 
 function* watchAndLog() {
   yield takeEvery('*', function* logger(action) {
